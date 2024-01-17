@@ -77,7 +77,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                implementation("com.couchbase.lite:couchbase-lite-android-ktx:3.1.1")
+                implementation("com.launchdarkly:launchdarkly-android-client-sdk:5.0.0")
             }
         }
         val androidUnitTest by getting {
