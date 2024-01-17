@@ -58,22 +58,18 @@ kotlin {
     ios()
     iosSimulatorArm64()
     cocoapods {
-        ios.deploymentTarget = "11.0"
+        ios.deploymentTarget = "12.0"
         framework {
             baseName = MODULE_NAME
             isStatic = true
         }
-        pod("CouchbaseLite") {
-            version = "3.1.1"
+        pod("LaunchDarkly") {
+            version = "~> 9.0"
         }
     }
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-            }
-        }
+        val commonMain by getting
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -89,20 +85,12 @@ kotlin {
                 implementation(testingLibs.junit)
             }
         }
-        val iosMain by getting {
-            dependencies {
-                implementation("com.rickclephas.kmp:nserror-kt:0.1.0")
-            }
-        }
+        val iosMain by getting
         val iosSimulatorArm64Main by getting
         iosSimulatorArm64Main.dependsOn(iosMain)
         val iosTest by getting
         val iosSimulatorArm64Test by getting
         iosSimulatorArm64Test.dependsOn(iosTest)
-    }
-
-    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().all {
-        compilations["main"].cinterops["CouchbaseLite"].extraOpts("-compiler-option", "-DCBLQueryMeta=CBLQueryMetaUnavailable")
     }
 }
 
