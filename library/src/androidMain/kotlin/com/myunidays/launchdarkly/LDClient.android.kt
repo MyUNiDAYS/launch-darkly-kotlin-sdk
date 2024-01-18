@@ -4,7 +4,12 @@ import android.app.Application
 
 actual class LDClient actual constructor(appContext: Any?, config: LDConfig, context: LDContext) {
 
-    private val android = com.launchdarkly.sdk.android.LDClient.init(appContext as Application, config.android, context.android).get()
+    private val android =
+        com.launchdarkly.sdk.android.LDClient.init(
+            appContext as Application,
+            config.android,
+            context.android
+        ).get()
 
     actual val allFlags: Map<String, LDValue>
         get() = android

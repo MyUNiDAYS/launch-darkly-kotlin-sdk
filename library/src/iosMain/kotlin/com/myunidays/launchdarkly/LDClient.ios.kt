@@ -43,7 +43,13 @@ actual class LDClient actual constructor(appContext: Any?, config: LDConfig, con
     actual fun intVariationDetail(
         key: String,
         defaultValue: Int
-    ): EvaluationDetailInterface<Int> = IntegerEvaluationDetail(ios.integerVariationDetailForKey(key, defaultValue.toLong()))
+    ): EvaluationDetailInterface<Int> =
+        IntegerEvaluationDetail(
+            ios.integerVariationDetailForKey(
+                key,
+                defaultValue.toLong()
+            )
+        )
 
     actual fun doubleVariationDetail(
         key: String,
