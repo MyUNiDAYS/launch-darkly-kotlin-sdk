@@ -1,7 +1,7 @@
 package com.myunidays.launchdarkly
 
 expect class LDClient(appContext: Any? = null, config: LDConfig, context: LDContext) {
-    val allFlags : Map<String, LDValue>
+    val allFlags: Map<String, LDValue>
     fun boolVariation(key: String, defaultValue: Boolean): Boolean
     fun boolVariationDetail(key: String, defaultValue: Boolean): EvaluationDetailInterface<Boolean>
     fun intVariation(key: String, defaultValue: Int): Int

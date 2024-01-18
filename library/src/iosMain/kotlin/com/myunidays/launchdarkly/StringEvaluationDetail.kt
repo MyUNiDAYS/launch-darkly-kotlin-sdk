@@ -1,6 +1,6 @@
 package com.myunidays.launchdarkly
 
-class StringEvaluationDetail internal constructor(private val ios: cocoapods.LaunchDarkly.LDStringEvaluationDetail):
+class StringEvaluationDetail internal constructor(private val ios: cocoapods.LaunchDarkly.LDStringEvaluationDetail) :
     EvaluationDetailInterface<String> {
     override val value: String?
         get() = ios.value()

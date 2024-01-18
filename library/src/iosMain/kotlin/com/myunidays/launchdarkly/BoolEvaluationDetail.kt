@@ -1,6 +1,6 @@
 package com.myunidays.launchdarkly
 
-class BoolEvaluationDetail internal constructor(private val ios: cocoapods.LaunchDarkly.LDBoolEvaluationDetail):
+class BoolEvaluationDetail internal constructor(private val ios: cocoapods.LaunchDarkly.LDBoolEvaluationDetail) :
     EvaluationDetailInterface<Boolean> {
     override val value: Boolean
         get() = ios.value()

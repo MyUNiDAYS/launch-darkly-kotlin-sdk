@@ -1,6 +1,6 @@
 package com.myunidays.launchdarkly
 
-class DoubleEvaluationDetail internal constructor(private val ios: cocoapods.LaunchDarkly.LDDoubleEvaluationDetail):
+class DoubleEvaluationDetail internal constructor(private val ios: cocoapods.LaunchDarkly.LDDoubleEvaluationDetail) :
     EvaluationDetailInterface<Double> {
     override val value: Double
         get() = ios.value()

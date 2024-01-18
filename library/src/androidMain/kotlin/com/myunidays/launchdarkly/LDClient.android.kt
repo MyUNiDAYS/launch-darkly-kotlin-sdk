@@ -60,5 +60,4 @@ actual class LDClient actual constructor(appContext: Any?, config: LDConfig, con
     actual fun close() {
         android.close()
     }
-
 }

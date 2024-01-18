@@ -1,6 +1,6 @@
 package com.myunidays.launchdarkly
 
-class IntegerEvaluationDetail internal constructor(private val ios: cocoapods.LaunchDarkly.LDIntegerEvaluationDetail):
+class IntegerEvaluationDetail internal constructor(private val ios: cocoapods.LaunchDarkly.LDIntegerEvaluationDetail) :
     EvaluationDetailInterface<Int> {
     override val value: Int
         get() = ios.value().toInt()

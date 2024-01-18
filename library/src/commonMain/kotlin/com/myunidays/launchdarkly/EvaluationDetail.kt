@@ -6,4 +6,4 @@ interface EvaluationDetailInterface<T> {
     val reason: EvaluationReason?
 }
 
-expect class EvaluationDetail<T>: EvaluationDetailInterface<T>
+expect class EvaluationDetail<T> : EvaluationDetailInterface<T>
