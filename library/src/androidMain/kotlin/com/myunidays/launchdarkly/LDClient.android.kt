@@ -1,11 +1,16 @@
 package com.myunidays.launchdarkly
 
+import android.app.Application
 
-//actual class LDClient actual constructor(config: LDConfig, context: LDContext) {
-//    private val android = com.launchdarkly.sdk.android.LDClient(
-//        config.android, context.android
-//    )
-actual class LDClient internal constructor(val android: com.launchdarkly.sdk.android.LDClient){
+actual class LDClient actual constructor(appContext: Any?, config: LDConfig, context: LDContext) {
+
+    private val android = com.launchdarkly.sdk.android.LDClient.init(appContext as Application, config.android, context.android).get()
+
+    actual val allFlags: Map<String, LDValue>
+        get() = android
+            .allFlags()
+            .map { it.key to LDValue(it.value) }
+            .toMap()
 
     actual fun boolVariation(
         key: String,
@@ -46,5 +51,9 @@ actual class LDClient internal constructor(val android: com.launchdarkly.sdk.and
         key: String,
         defaultValue: String
     ): EvaluationDetailInterface<String> = EvaluationDetail(android.stringVariationDetail(key, defaultValue))
+
+    actual fun close() {
+        android.close()
+    }
 
 }

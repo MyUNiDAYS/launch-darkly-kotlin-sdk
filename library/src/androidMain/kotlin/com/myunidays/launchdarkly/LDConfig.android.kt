@@ -1,11 +1,9 @@
 package com.myunidays.launchdarkly
 
-import com.launchdarkly.sdk.android.LDConfig
 
-// need to include autoEnvAttributes
-actual class LDConfig actual constructor(mobileKey: String) {
+actual class LDConfig actual constructor(mobileKey: String, autoEnvAttributes: AutoEnvAttributes) {
     val android = com.launchdarkly.sdk.android.LDConfig
-        .Builder(LDConfig.Builder.AutoEnvAttributes.Enabled)
+        .Builder(autoEnvAttributes.toNative() as com.launchdarkly.sdk.android.LDConfig.Builder.AutoEnvAttributes?)
         .mobileKey(mobileKey)
         .build()
 }

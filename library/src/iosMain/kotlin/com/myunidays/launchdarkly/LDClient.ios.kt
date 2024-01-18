@@ -1,6 +1,20 @@
 package com.myunidays.launchdarkly
 
-actual class LDClient internal constructor(val ios: cocoapods.LaunchDarkly.LDClient){
+actual class LDClient actual constructor(appContext: Any?, config: LDConfig, context: LDContext) {
+    private lateinit var ios: cocoapods.LaunchDarkly.LDClient
+
+    actual val allFlags: Map<String, LDValue>
+        get() = ios
+            .allFlags()
+            ?.map { it.key as String to LDValue(it.value as cocoapods.LaunchDarkly.LDValue) }
+            ?.toMap()
+            ?: emptyMap()
+    init {
+        cocoapods.LaunchDarkly.LDClient.startWithConfiguration(config.ios, context.ios) {
+            ios = cocoapods.LaunchDarkly.LDClient.get()!!
+        }
+    }
+
     actual fun boolVariation(
         key: String,
         defaultValue: Boolean
@@ -40,4 +54,8 @@ actual class LDClient internal constructor(val ios: cocoapods.LaunchDarkly.LDCli
         key: String,
         defaultValue: String
     ): EvaluationDetailInterface<String> = StringEvaluationDetail(ios.stringVariationDetailForKey(key, defaultValue))
+
+    actual fun close() {
+        ios.close()
+    }
 }
