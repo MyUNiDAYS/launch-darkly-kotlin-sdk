@@ -77,7 +77,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                implementation("com.launchdarkly:launchdarkly-android-client-sdk:5.0.0")
+                implementation(libs.launchdarkly.android)
             }
         }
         val androidUnitTest by getting {

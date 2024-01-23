@@ -15,6 +15,8 @@ dependencyResolutionManagement {
 
             library("android-build-tools", "com.android.tools.build", "gradle").versionRef("android-build-tools")
             library("gradle-plugin", "org.jetbrains.kotlin", "kotlin-gradle-plugin").versionRef("kotlin")
+
+            library("launchdarkly-android", "com.launchdarkly", "launchdarkly-android-client-sdk").version("5.0.0")
         }
         create("testingLibs") {
             version("kotlin", kotlinVersion)
