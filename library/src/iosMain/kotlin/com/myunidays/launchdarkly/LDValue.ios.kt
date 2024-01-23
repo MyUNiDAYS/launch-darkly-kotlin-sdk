@@ -4,7 +4,7 @@ actual class LDValue internal constructor(val ios: cocoapods.LaunchDarkly.LDValu
     actual fun stringValue(): String? = ios.stringValue()
     actual fun type(): LDValueType = ios.getType().toValueType()
 
-    actual fun value(): Any? = when(type()) {
+    actual fun value(): Any? = when (type()) {
         LDValueType.Null -> null
         LDValueType.Boolean -> ios.boolValue()
         LDValueType.Number -> ios.doubleValue()

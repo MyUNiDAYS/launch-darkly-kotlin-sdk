@@ -3,7 +3,7 @@ package com.myunidays.launchdarkly
 actual class LDValue internal constructor(val android: com.launchdarkly.sdk.LDValue) {
     actual fun stringValue(): String? = android.stringValue()
     actual fun type(): LDValueType = android.type.toValueType()
-    actual fun value(): Any? = when(type()) {
+    actual fun value(): Any? = when (type()) {
         LDValueType.Null -> null
         LDValueType.Boolean -> android.booleanValue()
         LDValueType.Number -> when {
