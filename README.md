@@ -7,7 +7,7 @@ A Kotlin Multiplatform wrapper for Launch Darkly
 ## Installation
 
 ```
-implementation("com.myunidays:launchdarkly:0.0.1")
+implementation("com.myunidays:launchdarkly:0.0.2")
 ```
 
 
@@ -18,6 +18,22 @@ implementation("com.myunidays:launchdarkly:0.0.1")
 The api is based on the android sdk, I would recommend you use https://docs.launchdarkly.com/sdk/client-side/android as the main point of reference.
 
 ```kotlin
+    val client = LDClient(
+        context,
+        LDConfig("mobile-key", AutoEnvAttributes.Enabled),
+        LDContext("context-key")
+    )
+```
+
+Then you should be able to fetch values for keys
+
+```kotlin
+client.boolVariation("key", false)
+```
+
+Or you can use the catch all implementation of 'allflags'
+```kotlin
+client.getAllValues()
 ```
 
 ## Contributing
