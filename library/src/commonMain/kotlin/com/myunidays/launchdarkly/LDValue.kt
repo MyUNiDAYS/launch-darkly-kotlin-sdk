@@ -6,4 +6,8 @@ expect class LDValue {
     fun value(): Any?
 
     fun type(): LDValueType
+
+    companion object {
+        val Empty: LDValue
+    }
 }

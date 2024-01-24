@@ -6,8 +6,9 @@ dependencyResolutionManagement {
         create("libs") {
             version("kotlin", kotlinVersion)
 
-            version("android-build-tools", "8.1.2")
+            version("android-build-tools", "8.1.4")
             version("jvm", "17")
+            version("serialization", "1.6.0")
 
             plugin("android-library", "com.android.library").versionRef("android-build-tools")
             plugin("multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
@@ -15,6 +16,10 @@ dependencyResolutionManagement {
 
             library("android-build-tools", "com.android.tools.build", "gradle").versionRef("android-build-tools")
             library("gradle-plugin", "org.jetbrains.kotlin", "kotlin-gradle-plugin").versionRef("kotlin")
+
+            library("serialization", "org.jetbrains.kotlin", "kotlin-serialization").versionRef("kotlin")
+            library("serialization-core", "org.jetbrains.kotlinx", "kotlinx-serialization-core").versionRef("serialization")
+            library("serialization-json", "org.jetbrains.kotlinx", "kotlinx-serialization-json").versionRef("serialization")
 
             library("launchdarkly-android", "com.launchdarkly", "launchdarkly-android-client-sdk").version("5.0.0")
         }

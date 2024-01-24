@@ -12,4 +12,8 @@ actual class LDValue internal constructor(val ios: cocoapods.LaunchDarkly.LDValu
         LDValueType.Array -> ios.arrayValue()
         LDValueType.Object -> ios.dictValue()
     }
+
+    actual companion object {
+        actual val Empty: LDValue = LDValue(cocoapods.LaunchDarkly.LDValue.ofNull())
+    }
 }

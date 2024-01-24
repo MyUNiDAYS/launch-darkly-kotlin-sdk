@@ -1,6 +1,12 @@
 package com.myunidays.launchdarkly
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+
+@Suppress("TooManyFunctions")
 expect class LDClient(appContext: Any? = null, config: LDConfig, context: LDContext) {
+    internal val json: Json
+
     val allFlags: Map<String, LDValue>
     fun boolVariation(key: String, defaultValue: Boolean): Boolean
     fun boolVariationDetail(key: String, defaultValue: Boolean): EvaluationDetailInterface<Boolean>
@@ -10,15 +16,8 @@ expect class LDClient(appContext: Any? = null, config: LDConfig, context: LDCont
     fun doubleVariationDetail(key: String, defaultValue: Double): EvaluationDetailInterface<Double>
     fun stringVariation(key: String, defaultValue: String): String
     fun stringVariationDetail(key: String, defaultValue: String): EvaluationDetailInterface<String>
-
-//
-//    public LDValue jsonValueVariation(@NonNull String key, LDValue defaultValue) {
-//        return (LDValue)this.variationDetailInternal(key, LDValue.normalize(defaultValue), false, false).getValue();
-//    }
-//
-//    public EvaluationDetail<LDValue> jsonValueVariationDetail(@NonNull String key, LDValue defaultValue) {
-//        return this.variationDetailInternal(key, LDValue.normalize(defaultValue), false, true);
-//    }
-
+    fun jsonValueVariation(key: String, defaultValue: LDValue): LDValue
+    fun <T> jsonValueVariation(key: String, deserializer: KSerializer<T>): T?
+    fun <T> jsonListValueVariation(key: String, deserializer: KSerializer<T>): List<T>
     fun close()
 }

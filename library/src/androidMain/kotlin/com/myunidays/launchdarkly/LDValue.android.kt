@@ -16,4 +16,8 @@ actual class LDValue internal constructor(val android: com.launchdarkly.sdk.LDVa
             key to android.get(key)
         }
     }
+
+    actual companion object {
+        actual val Empty: LDValue = LDValue(com.launchdarkly.sdk.LDValue.ofNull())
+    }
 }

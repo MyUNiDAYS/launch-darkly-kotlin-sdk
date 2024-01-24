@@ -1,8 +1,16 @@
 package com.myunidays.launchdarkly
 
 import android.app.Application
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 
+@Suppress("TooManyFunctions")
 actual class LDClient actual constructor(appContext: Any?, config: LDConfig, context: LDContext) {
+
+    internal actual val json: Json = Json {
+        ignoreUnknownKeys = true
+    }
 
     private val android =
         com.launchdarkly.sdk.android.LDClient.init(
@@ -60,4 +68,36 @@ actual class LDClient actual constructor(appContext: Any?, config: LDConfig, con
     actual fun close() {
         android.close()
     }
+
+    actual fun jsonValueVariation(
+        key: String,
+        defaultValue: LDValue
+    ): LDValue = LDValue(android.jsonValueVariation(key, defaultValue.android))
+
+    actual fun <T> jsonValueVariation(
+        key: String,
+        deserializer: KSerializer<T>
+    ): T? =
+        android.jsonValueVariation(key, com.launchdarkly.sdk.LDValue.ofNull())
+            .takeUnless { it.isNull }
+            ?.let {
+                json.decodeFromString(
+                    deserializer,
+                    it.toJsonString()
+                )
+            }
+
+    actual fun <T> jsonListValueVariation(
+        key: String,
+        deserializer: KSerializer<T>
+    ): List<T> =
+        android.jsonValueVariation(key, com.launchdarkly.sdk.LDValue.ofNull())
+            .takeUnless { it.isNull }
+            ?.let {
+                json.decodeFromString(
+                    ListSerializer(deserializer),
+                    it.toJsonString()
+                )
+            }
+            ?: emptyList()
 }

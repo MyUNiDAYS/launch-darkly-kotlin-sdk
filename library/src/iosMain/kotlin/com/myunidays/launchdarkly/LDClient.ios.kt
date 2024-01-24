@@ -1,7 +1,19 @@
 package com.myunidays.launchdarkly
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+
+@Suppress("TooManyFunctions")
 actual class LDClient actual constructor(appContext: Any?, config: LDConfig, context: LDContext) {
     private lateinit var ios: cocoapods.LaunchDarkly.LDClient
+
+    internal actual val json: Json = Json {
+        ignoreUnknownKeys = true
+    }
 
     actual val allFlags: Map<String, LDValue>
         get() = ios
@@ -64,4 +76,61 @@ actual class LDClient actual constructor(appContext: Any?, config: LDConfig, con
     actual fun close() {
         ios.close()
     }
+
+    actual fun jsonValueVariation(
+        key: String,
+        defaultValue: LDValue
+    ): LDValue = LDValue(ios.jsonVariationForKey(key, defaultValue.ios))
+
+    actual fun <T> jsonValueVariation(
+        key: String,
+        deserializer: KSerializer<T>
+    ): T? =
+        ios.jsonVariationForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
+            .takeUnless { it.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
+            ?.let { remoteValue ->
+                json.decodeFromString(
+                    deserializer,
+                    JsonObject(
+                        remoteValue.dictValue()
+                            .mapNotNull {
+                                runCatching {
+                                    it.key as String to it.value as cocoapods.LaunchDarkly.LDValue
+                                }.getOrNull()
+                            }.associate { it.first to JsonPrimitive(it.second.stringValue()) }
+                    ).toString()
+                )
+            }
+
+    actual fun <T> jsonListValueVariation(
+        key: String,
+        deserializer: KSerializer<T>
+    ): List<T> =
+        ios.jsonVariationForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
+            .takeUnless { it.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
+            ?.let { remoteValue ->
+                json.decodeFromString(
+                    ListSerializer(deserializer),
+                    JsonArray(
+                        remoteValue.arrayValue()
+                            .filterIsInstance<cocoapods.LaunchDarkly.LDValue>()
+                            .map { singleRemoteValue ->
+                                JsonObject(
+                                    singleRemoteValue.dictValue()
+                                        .mapNotNull {
+                                            runCatching {
+                                                it.key as String to
+                                                    it.value as cocoapods.LaunchDarkly.LDValue
+                                            }
+                                                .getOrNull()
+                                        }
+                                        .associate {
+                                            it.first to JsonPrimitive(it.second.stringValue())
+                                        }
+                                )
+                            }
+                    ).toString()
+                )
+            }
+            ?: emptyList()
 }

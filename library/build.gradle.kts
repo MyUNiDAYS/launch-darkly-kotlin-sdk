@@ -20,6 +20,7 @@ plugins {
     kotlin("native.cocoapods")
     signing
     `maven-publish`
+    kotlin("plugin.serialization")
 }
 
 ktlint {
@@ -69,7 +70,12 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting
+        val commonMain by getting {
+            dependencies {
+                implementation(libs.serialization.core)
+                implementation(libs.serialization.json)
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))

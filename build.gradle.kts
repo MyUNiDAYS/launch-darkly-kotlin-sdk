@@ -18,6 +18,7 @@ buildscript {
         classpath(libs.gradle.plugin)
         classpath(testingLibs.detekt)
         classpath(testingLibs.kotest.plugin)
+        classpath(libs.serialization)
     }
 }
 
