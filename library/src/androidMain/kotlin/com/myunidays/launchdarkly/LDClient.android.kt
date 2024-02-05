@@ -100,4 +100,8 @@ actual class LDClient actual constructor(appContext: Any?, config: LDConfig, con
                 )
             }
             ?: emptyList()
+
+    actual fun identify(context: LDContext) {
+        android.identify(context.android)
+    }
 }

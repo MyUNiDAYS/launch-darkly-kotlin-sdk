@@ -20,4 +20,5 @@ expect class LDClient(appContext: Any? = null, config: LDConfig, context: LDCont
     fun <T> jsonValueVariation(key: String, deserializer: KSerializer<T>): T?
     fun <T> jsonListValueVariation(key: String, deserializer: KSerializer<T>): List<T>
     fun close()
+    fun identify(context: LDContext)
 }
