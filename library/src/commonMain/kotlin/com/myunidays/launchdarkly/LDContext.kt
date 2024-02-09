@@ -1,7 +1,10 @@
 package com.myunidays.launchdarkly
 
-expect class LDContext(key: String) {
+expect class LDContext(key: String, kind: String = "user") {
+
+    @Suppress("UnusedPrivateProperty")
+    constructor(key: String, kind: ContextKind = ContextKind())
     companion object {
-        fun createMulti(vararg contexts: LDContext): LDContext
+        fun createMulti(contexts: List<LDContext>): LDContext
     }
 }
