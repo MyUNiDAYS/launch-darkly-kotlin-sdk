@@ -8,7 +8,12 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
 @Suppress("TooManyFunctions")
-actual class LDClient actual constructor(appContext: Any?, config: LDConfig, context: LDContext) {
+actual class LDClient actual constructor(
+    appContext: Any?,
+    config: LDConfig,
+    context: LDContext,
+    onReady: () -> Unit
+) {
     private lateinit var ios: cocoapods.LaunchDarkly.LDClient
 
     internal actual val json: Json = Json {
@@ -24,6 +29,7 @@ actual class LDClient actual constructor(appContext: Any?, config: LDConfig, con
     init {
         cocoapods.LaunchDarkly.LDClient.startWithConfiguration(config.ios, context.ios) {
             ios = cocoapods.LaunchDarkly.LDClient.get()!!
+            onReady()
         }
     }
 

@@ -6,7 +6,12 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
 @Suppress("TooManyFunctions")
-actual class LDClient actual constructor(appContext: Any?, config: LDConfig, context: LDContext) {
+actual class LDClient actual constructor(
+    appContext: Any?,
+    config: LDConfig,
+    context: LDContext,
+    onReady: () -> Unit
+) {
 
     internal actual val json: Json = Json {
         ignoreUnknownKeys = true
@@ -18,6 +23,10 @@ actual class LDClient actual constructor(appContext: Any?, config: LDConfig, con
             config.android,
             context.android
         ).get()
+
+    init {
+        onReady()
+    }
 
     actual val allFlags: Map<String, LDValue>
         get() = android

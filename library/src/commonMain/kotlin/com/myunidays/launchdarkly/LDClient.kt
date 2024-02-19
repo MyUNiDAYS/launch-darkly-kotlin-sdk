@@ -4,7 +4,12 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 
 @Suppress("TooManyFunctions")
-expect class LDClient(appContext: Any? = null, config: LDConfig, context: LDContext) {
+expect class LDClient(
+    appContext: Any? = null,
+    config: LDConfig,
+    context: LDContext,
+    onReady: () -> Unit
+) {
     internal val json: Json
 
     val allFlags: Map<String, LDValue>
