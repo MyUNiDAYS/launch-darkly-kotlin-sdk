@@ -14,7 +14,7 @@ actual class LDClient actual constructor(
     context: LDContext,
     onReady: () -> Unit
 ) {
-    private lateinit var ios: cocoapods.LaunchDarkly.LDClient
+    private var ios: cocoapods.LaunchDarkly.LDClient? = null
 
     internal actual val json: Json = Json {
         ignoreUnknownKeys = true
@@ -22,13 +22,13 @@ actual class LDClient actual constructor(
 
     actual val allFlags: Map<String, LDValue>
         get() = ios
-            .allFlags()
+            ?.allFlags()
             ?.map { it.key as String to LDValue(it.value as cocoapods.LaunchDarkly.LDValue) }
             ?.toMap()
             ?: emptyMap()
     init {
         cocoapods.LaunchDarkly.LDClient.startWithConfiguration(config.ios, context.ios) {
-            ios = cocoapods.LaunchDarkly.LDClient.get()!!
+            ios = cocoapods.LaunchDarkly.LDClient.get()
             onReady()
         }
     }
@@ -36,34 +36,36 @@ actual class LDClient actual constructor(
     actual fun boolVariation(
         key: String,
         defaultValue: Boolean
-    ): Boolean = ios.boolVariationForKey(key, defaultValue)
+    ): Boolean = ios?.boolVariationForKey(key, defaultValue) ?: defaultValue
 
     actual fun intVariation(
         key: String,
         defaultValue: Int
-    ): Int = ios.integerVariationForKey(key, defaultValue.toLong()).toInt()
+    ): Int =
+        (ios?.integerVariationForKey(key, defaultValue.toLong()) ?: defaultValue.toLong()).toInt()
 
     actual fun doubleVariation(
         key: String,
         defaultValue: Double
-    ): Double = ios.doubleVariationForKey(key, defaultValue)
+    ): Double = ios?.doubleVariationForKey(key, defaultValue) ?: defaultValue
 
     actual fun stringVariation(
         key: String,
         defaultValue: String
-    ): String = ios.stringVariationForKey(key, defaultValue)
+    ): String = ios?.stringVariationForKey(key, defaultValue) ?: defaultValue
 
     actual fun boolVariationDetail(
         key: String,
         defaultValue: Boolean
-    ): EvaluationDetailInterface<Boolean> = BoolEvaluationDetail(ios.boolVariationDetailForKey(key, defaultValue))
+    ): EvaluationDetailInterface<Boolean> =
+        BoolEvaluationDetail(ios!!.boolVariationDetailForKey(key, defaultValue))
 
     actual fun intVariationDetail(
         key: String,
         defaultValue: Int
     ): EvaluationDetailInterface<Int> =
         IntegerEvaluationDetail(
-            ios.integerVariationDetailForKey(
+            ios!!.integerVariationDetailForKey(
                 key,
                 defaultValue.toLong()
             )
@@ -72,28 +74,28 @@ actual class LDClient actual constructor(
     actual fun doubleVariationDetail(
         key: String,
         defaultValue: Double
-    ): EvaluationDetailInterface<Double> = DoubleEvaluationDetail(ios.doubleVariationDetailForKey(key, defaultValue))
+    ): EvaluationDetailInterface<Double> = DoubleEvaluationDetail(ios!!.doubleVariationDetailForKey(key, defaultValue))
 
     actual fun stringVariationDetail(
         key: String,
         defaultValue: String
-    ): EvaluationDetailInterface<String> = StringEvaluationDetail(ios.stringVariationDetailForKey(key, defaultValue))
+    ): EvaluationDetailInterface<String> = StringEvaluationDetail(ios!!.stringVariationDetailForKey(key, defaultValue))
 
     actual fun close() {
-        ios.close()
+        ios?.close()
     }
 
     actual fun jsonValueVariation(
         key: String,
         defaultValue: LDValue
-    ): LDValue = LDValue(ios.jsonVariationForKey(key, defaultValue.ios))
+    ): LDValue = LDValue(ios!!.jsonVariationForKey(key, defaultValue.ios))
 
     actual fun <T> jsonValueVariation(
         key: String,
         deserializer: KSerializer<T>
     ): T? =
-        ios.jsonVariationForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
-            .takeUnless { it.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
+        ios?.jsonVariationForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
+            .takeUnless { it?.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
             ?.let { remoteValue ->
                 json.decodeFromString(
                     deserializer,
@@ -112,8 +114,8 @@ actual class LDClient actual constructor(
         key: String,
         deserializer: KSerializer<T>
     ): List<T> =
-        ios.jsonVariationForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
-            .takeUnless { it.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
+        ios?.jsonVariationForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
+            .takeUnless { it?.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
             ?.let { remoteValue ->
                 json.decodeFromString(
                     ListSerializer(deserializer),
@@ -141,6 +143,6 @@ actual class LDClient actual constructor(
             ?: emptyList()
 
     actual fun identify(context: LDContext) {
-        ios.identifyWithContext(context.ios)
+        ios?.identifyWithContext(context.ios)
     }
 }
