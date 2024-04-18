@@ -1,6 +1,7 @@
 package com.myunidays.launchdarkly
 
 actual class LDValue internal constructor(val ios: cocoapods.LaunchDarkly.LDValue) {
+    actual constructor(value: String) : this(cocoapods.LaunchDarkly.LDValue.ofString(value))
     actual fun stringValue(): String? = ios.stringValue()
     actual fun type(): LDValueType = ios.getType().toValueType()
 

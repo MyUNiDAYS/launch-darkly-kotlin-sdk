@@ -1,6 +1,8 @@
 package com.myunidays.launchdarkly
 
 actual class LDValue internal constructor(val android: com.launchdarkly.sdk.LDValue) {
+    actual constructor(value: String) : this(com.launchdarkly.sdk.LDValue.of(value))
+
     actual fun stringValue(): String? = android.stringValue()
     actual fun type(): LDValueType = android.type.toValueType()
     actual fun value(): Any? = when (type()) {

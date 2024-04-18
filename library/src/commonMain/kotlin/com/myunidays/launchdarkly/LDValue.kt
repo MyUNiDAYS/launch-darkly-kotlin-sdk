@@ -1,6 +1,6 @@
 package com.myunidays.launchdarkly
 
-expect class LDValue {
+expect class LDValue(value: String) {
     fun stringValue(): String?
 
     fun value(): Any?
