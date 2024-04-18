@@ -66,7 +66,6 @@ kotlin {
         }
         pod("LaunchDarkly") {
             version = "9.6.0"
-
         }
     }
 
