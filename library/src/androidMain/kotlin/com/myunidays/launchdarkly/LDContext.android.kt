@@ -8,6 +8,7 @@ actual class LDContext internal constructor(val android: com.launchdarkly.sdk.LD
         privateAttributes: List<String>
     ) : this(key, ContextKind(kind), values, privateAttributes)
 
+    @Suppress("SpreadOperator")
     actual constructor(
         key: String,
         kind: ContextKind,
