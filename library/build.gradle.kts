@@ -65,7 +65,8 @@ kotlin {
             isStatic = true
         }
         pod("LaunchDarkly") {
-            version = "9.7.1"
+            version = "9.8.0"
+            extraOpts = listOf("-compiler-option", "-LD_OBJC_EXCLUDE_PURE_SWIFT_APIS=1")
         }
     }
 
