@@ -1,6 +1,6 @@
 package com.myunidays.launchdarkly
 
-class EvaluationReason internal constructor(val ios: Map<Any?, *>) {
+actual class EvaluationReason internal constructor(val ios: Map<Any?, *>) {
 
     /**
      * Determines if the evaluation is part of an experiment.
