@@ -21,7 +21,7 @@ dependencyResolutionManagement {
             library("serialization-core", "org.jetbrains.kotlinx", "kotlinx-serialization-core").versionRef("serialization")
             library("serialization-json", "org.jetbrains.kotlinx", "kotlinx-serialization-json").versionRef("serialization")
 
-            library("launchdarkly-android", "com.launchdarkly", "launchdarkly-android-client-sdk").version("5.0.0")
+            library("launchdarkly-android", "com.launchdarkly", "launchdarkly-android-client-sdk").version("5.3.0")
         }
         create("testingLibs") {
             version("kotlin", kotlinVersion)

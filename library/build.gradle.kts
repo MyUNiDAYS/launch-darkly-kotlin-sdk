@@ -65,7 +65,7 @@ kotlin {
             isStatic = true
         }
         pod("LaunchDarkly") {
-            version = "9.6.0"
+            version = "9.8.1"
         }
     }
 
@@ -97,6 +97,12 @@ kotlin {
         val iosTest by getting
         val iosSimulatorArm64Test by getting
         iosSimulatorArm64Test.dependsOn(iosTest)
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.PodGenTask>().configureEach {
+    doLast {
+        podfile.get().apply { writeText(readText().replace("config.build_settings['CODE_SIGNING_ALLOWED'] = \"NO\"", "config.build_settings['CODE_SIGNING_ALLOWED'] = \"NO\"\nconfig.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = '\$(inherited) LD_OBJC_EXCLUDE_PURE_SWIFT_APIS'\n")) }
     }
 }
 
