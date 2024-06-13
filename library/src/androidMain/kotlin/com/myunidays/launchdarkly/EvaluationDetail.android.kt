@@ -8,5 +8,5 @@ actual class EvaluationDetail<T> internal constructor(
     override val variationIndex: Int
         get() = android.variationIndex
     override val reason: EvaluationReason?
-        get() = EvaluationReason(android.reason)
+        get() = android.reason?.let { EvaluationReason(it) }
 }
