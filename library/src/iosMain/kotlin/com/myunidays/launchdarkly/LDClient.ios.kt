@@ -183,7 +183,10 @@ actual class LDClient actual constructor(
                             // Construct a JsonValueEvaluationDetail object from the decoded value
                             JsonValueEvaluationDetail(jsonEvaluationDetail, value)
                         }
-                    } ?: JsonValueEvaluationDetail(jsonEvaluationDetail, emptyList()) // Return an empty list if the value is null
+
+                    } ?:
+                    // Return an empty list if the value is null
+                    JsonValueEvaluationDetail(jsonEvaluationDetail, emptyList())
             }
 
     actual fun identify(context: LDContext) {

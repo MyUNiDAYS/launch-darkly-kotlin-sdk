@@ -6,7 +6,11 @@ actual class EvaluationDetail<T> internal constructor(
 
     companion object {
 
-        fun <T> fromValues(value: T?, variationIndex: Int, reason: com.launchdarkly.sdk.EvaluationReason?): EvaluationDetail<T> {
+        fun <T> fromValues(
+            value: T?,
+            variationIndex: Int,
+            reason: com.launchdarkly.sdk.EvaluationReason?
+        ): EvaluationDetail<T> {
             val sdkDetail = createEvaluationDetail(value, variationIndex, reason)
             return EvaluationDetail(sdkDetail)
         }
