@@ -83,18 +83,45 @@ actual class LDClient actual constructor(
         defaultValue: LDValue
     ): LDValue = LDValue(android.jsonValueVariation(key, defaultValue.android))
 
+    actual fun jsonValueVariationDetail(
+        key: String,
+        defaultValue: LDValue
+    ): EvaluationDetailInterface<LDValue> = android!!.jsonValueVariationDetail(
+        key,
+        defaultValue.android
+    ).let { evaluationDetail ->
+        EvaluationDetail.fromValues(
+            value = LDValue(evaluationDetail.value),
+            variationIndex = evaluationDetail.variationIndex,
+            reason = evaluationDetail.reason
+        )
+    }
+
     actual fun <T> jsonValueVariation(
         key: String,
         deserializer: KSerializer<T>
     ): T? =
-        android.jsonValueVariation(key, com.launchdarkly.sdk.LDValue.ofNull())
-            .takeUnless { it.isNull }
+        this.jsonValueVariationDetail(key, deserializer).value
+
+    actual fun <T> jsonValueVariationDetail(
+        key: String,
+        deserializer: KSerializer<T>
+    ): EvaluationDetailInterface<T?> =
+        android.jsonValueVariationDetail(key, com.launchdarkly.sdk.LDValue.ofNull()).let { evaluationDetail ->
+            evaluationDetail.value.takeUnless { it.isNull }
             ?.let {
                 json.decodeFromString(
                     deserializer,
                     it.toJsonString()
                 )
+            }.let { value ->
+                EvaluationDetail.fromValues(
+                    value = value,
+                    variationIndex = evaluationDetail.variationIndex,
+                    reason = evaluationDetail.reason
+                )
             }
+        }
 
     actual fun <T> jsonListValueVariation(
         key: String,
@@ -109,6 +136,21 @@ actual class LDClient actual constructor(
                 )
             }
             ?: emptyList()
+
+    fun <T> jsonListValueVariationDetail(
+        key: String,
+        deserializer: KSerializer<T>
+    ): List<T> =
+        android.jsonValueVariation(key, com.launchdarkly.sdk.LDValue.ofNull())
+            .takeUnless { it.isNull }
+            ?.let {
+                json.decodeFromString(
+                    ListSerializer(deserializer),
+                    it.toJsonString()
+                )
+            }
+            ?: emptyList()
+
 
     actual fun identify(context: LDContext) {
         android.identify(context.android)

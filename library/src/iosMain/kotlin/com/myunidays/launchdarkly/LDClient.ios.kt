@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlin.math.E
 
 @Suppress("TooManyFunctions")
 actual class LDClient actual constructor(
@@ -90,24 +91,41 @@ actual class LDClient actual constructor(
         defaultValue: LDValue
     ): LDValue = LDValue(ios!!.jsonVariationForKey(key, defaultValue.ios))
 
+    actual fun jsonValueVariationDetail(
+        key: String,
+        defaultValue: LDValue
+    ): EvaluationDetailInterface<LDValue> = ios!!.jsonVariationDetailForKey(key, defaultValue.ios).let {
+        JsonValueEvaluationDetail(it, LDValue(it.value()))
+    }
+
     actual fun <T> jsonValueVariation(
         key: String,
         deserializer: KSerializer<T>
     ): T? =
-        ios?.jsonVariationForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
-            .takeUnless { it?.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
-            ?.let { remoteValue ->
-                json.decodeFromString(
-                    deserializer,
-                    JsonObject(
-                        remoteValue.dictValue()
-                            .mapNotNull {
-                                runCatching {
-                                    it.key as String to it.value as cocoapods.LaunchDarkly.LDValue
-                                }.getOrNull()
-                            }.associate { it.first to JsonPrimitive(it.second.stringValue()) }
-                    ).toString()
-                )
+        this.jsonValueVariationDetail(key, deserializer)?.value
+
+    actual fun <T> jsonValueVariationDetail(
+        key: String,
+        deserializer: KSerializer<T>
+    ): EvaluationDetailInterface<T?> =
+        ios!!.jsonVariationDetailForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
+            .let { jsonEvaluationDetail ->
+                jsonEvaluationDetail.value().takeUnless { it?.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
+                    ?.let { remoteValue ->
+                    json.decodeFromString(
+                        deserializer,
+                        JsonObject(
+                            remoteValue.dictValue()
+                                .mapNotNull {
+                                    runCatching {
+                                        it.key as String to it.value as cocoapods.LaunchDarkly.LDValue
+                                    }.getOrNull()
+                                }.associate { it.first to JsonPrimitive(it.second.stringValue()) }
+                        ).toString()
+                    )
+                }.let { value ->
+                    JsonValueEvaluationDetail(jsonEvaluationDetail, value)
+                }
             }
 
     actual fun <T> jsonListValueVariation(
