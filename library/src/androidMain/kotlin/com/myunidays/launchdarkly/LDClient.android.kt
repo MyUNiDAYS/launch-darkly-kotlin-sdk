@@ -126,30 +126,39 @@ actual class LDClient actual constructor(
     actual fun <T> jsonListValueVariation(
         key: String,
         deserializer: KSerializer<T>
-    ): List<T> =
-        android.jsonValueVariation(key, com.launchdarkly.sdk.LDValue.ofNull())
-            .takeUnless { it.isNull }
-            ?.let {
-                json.decodeFromString(
-                    ListSerializer(deserializer),
-                    it.toJsonString()
-                )
-            }
-            ?: emptyList()
+    ): List<T> = this.jsonListValueVariationDetail(key, deserializer).value ?: emptyList()
 
-    fun <T> jsonListValueVariationDetail(
+    // Define a generic function that returns an EvaluationDetailInterface for a list of type T
+    // The function takes a key and a deserializer for type T as parameters
+    actual fun <T> jsonListValueVariationDetail(
         key: String,
         deserializer: KSerializer<T>
-    ): List<T> =
-        android.jsonValueVariation(key, com.launchdarkly.sdk.LDValue.ofNull())
-            .takeUnless { it.isNull }
-            ?.let {
-                json.decodeFromString(
-                    ListSerializer(deserializer),
-                    it.toJsonString()
-                )
+    ): EvaluationDetailInterface<List<T>> =
+
+        // Call the android-specific jsonValueVariationDetail method with the provided key
+        // and a default null value, then process the result using 'let'
+        android.jsonValueVariationDetail(key, com.launchdarkly.sdk.LDValue.ofNull())
+            .let { jsonEvaluationDetail ->
+
+                // Extract the value from the jsonEvaluationDetail if it's not null
+                jsonEvaluationDetail.value.takeUnless { it.isNull }
+                    // If the value is not null, decode it into a list of type T using the provided deserializer
+                    ?.let {
+                        json.decodeFromString(
+                            ListSerializer(deserializer),
+                            it.toJsonString()
+                        )
+                    }.let { value ->
+
+                        // Construct an EvaluationDetail object from the decoded value or an empty list if null,
+                        // along with the variation index and reason from jsonEvaluationDetail
+                        EvaluationDetail.fromValues(
+                            value = value ?: emptyList(),
+                            variationIndex = jsonEvaluationDetail.variationIndex,
+                            reason = jsonEvaluationDetail.reason
+                        )
+                    }
             }
-            ?: emptyList()
 
 
     actual fun identify(context: LDContext) {

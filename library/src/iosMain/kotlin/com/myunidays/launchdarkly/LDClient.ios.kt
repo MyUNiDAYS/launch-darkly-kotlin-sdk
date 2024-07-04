@@ -131,34 +131,60 @@ actual class LDClient actual constructor(
     actual fun <T> jsonListValueVariation(
         key: String,
         deserializer: KSerializer<T>
-    ): List<T> =
-        ios?.jsonVariationForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
-            .takeUnless { it?.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
-            ?.let { remoteValue ->
-                json.decodeFromString(
-                    ListSerializer(deserializer),
-                    JsonArray(
-                        remoteValue.arrayValue()
-                            .filterIsInstance<cocoapods.LaunchDarkly.LDValue>()
-                            .map { singleRemoteValue ->
-                                JsonObject(
-                                    singleRemoteValue.dictValue()
-                                        .mapNotNull {
-                                            runCatching {
-                                                it.key as String to
-                                                    it.value as cocoapods.LaunchDarkly.LDValue
-                                            }
-                                                .getOrNull()
-                                        }
-                                        .associate {
-                                            it.first to JsonPrimitive(it.second.stringValue())
-                                        }
-                                )
-                            }
-                    ).toString()
-                )
+    ): List<T> = this.jsonListValueVariationDetail(key, deserializer).value ?: emptyList()
+
+    // Define a generic function that returns an EvaluationDetailInterface for a list of type T
+    // The function takes a key and a deserializer for type T as parameters
+    actual fun <T> jsonListValueVariationDetail(
+        key: String,
+        deserializer: KSerializer<T>
+    ): EvaluationDetailInterface<List<T>> =
+
+        // Call the iOS-specific jsonVariationDetailForKey method with the provided key
+        // and a default null value, then process the result using 'let'
+        ios!!.jsonVariationDetailForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
+            .let { jsonEvaluationDetail ->
+
+                // Extract the value from the jsonEvaluationDetail if its type is not Null
+                jsonEvaluationDetail.value().takeUnless { it.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
+
+                    // If the value is not null, process the remote value
+                    ?.let { remoteValue ->
+
+                        // Decode the remote value into a list of type T using the provided deserializer
+                        json.decodeFromString(
+                            ListSerializer(deserializer),
+                            // Convert the remote value to a JSON string
+                            JsonArray(
+                                // Filter the remote value array to instances of LDValue
+                                remoteValue.arrayValue()
+                                    .filterIsInstance<cocoapods.LaunchDarkly.LDValue>()
+                                    // Map each single remote value to a JsonObject
+                                    .map { singleRemoteValue ->
+
+                                        JsonObject(
+                                            // Convert the dictionary of the single remote value
+                                            // to a map of string keys and JsonPrimitive values
+                                            singleRemoteValue.dictValue()
+                                                .mapNotNull {
+                                                    runCatching {
+                                                        it.key as String to
+                                                                it.value as cocoapods.LaunchDarkly.LDValue
+                                                    }
+                                                        .getOrNull()
+                                                }
+                                                .associate {
+                                                    it.first to JsonPrimitive(it.second.stringValue())
+                                                }
+                                        )
+                                    }
+                            ).toString()
+                        ).let { value ->
+                            // Construct a JsonValueEvaluationDetail object from the decoded value
+                            JsonValueEvaluationDetail(jsonEvaluationDetail, value)
+                        }
+                    } ?: JsonValueEvaluationDetail(jsonEvaluationDetail, emptyList()) // Return an empty list if the value is null
             }
-            ?: emptyList()
 
     actual fun identify(context: LDContext) {
         ios?.identifyWithContext(context.ios)
