@@ -109,18 +109,18 @@ actual class LDClient actual constructor(
     ): EvaluationDetailInterface<T?> =
         android.jsonValueVariationDetail(key, com.launchdarkly.sdk.LDValue.ofNull()).let { evaluationDetail ->
             evaluationDetail.value.takeUnless { it.isNull }
-            ?.let {
-                json.decodeFromString(
-                    deserializer,
-                    it.toJsonString()
-                )
-            }.let { value ->
-                EvaluationDetail.fromValues(
-                    value = value,
-                    variationIndex = evaluationDetail.variationIndex,
-                    reason = evaluationDetail.reason
-                )
-            }
+                ?.let {
+                    json.decodeFromString(
+                        deserializer,
+                        it.toJsonString()
+                    )
+                }.let { value ->
+                    EvaluationDetail.fromValues(
+                        value = value,
+                        variationIndex = evaluationDetail.variationIndex,
+                        reason = evaluationDetail.reason
+                    )
+                }
         }
 
     actual fun <T> jsonListValueVariation(
@@ -159,7 +159,6 @@ actual class LDClient actual constructor(
                         )
                     }
             }
-
 
     actual fun identify(context: LDContext) {
         android.identify(context.android)

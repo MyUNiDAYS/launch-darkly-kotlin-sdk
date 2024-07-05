@@ -6,7 +6,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlin.math.E
 
 @Suppress("TooManyFunctions")
 actual class LDClient actual constructor(
@@ -27,6 +26,7 @@ actual class LDClient actual constructor(
             ?.map { it.key as String to LDValue(it.value as cocoapods.LaunchDarkly.LDValue) }
             ?.toMap()
             ?: emptyMap()
+
     init {
         cocoapods.LaunchDarkly.LDClient.startWithConfiguration(config.ios, context.ios) {
             ios = cocoapods.LaunchDarkly.LDClient.get()
@@ -112,20 +112,20 @@ actual class LDClient actual constructor(
             .let { jsonEvaluationDetail ->
                 jsonEvaluationDetail.value().takeUnless { it?.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
                     ?.let { remoteValue ->
-                    json.decodeFromString(
-                        deserializer,
-                        JsonObject(
-                            remoteValue.dictValue()
-                                .mapNotNull {
-                                    runCatching {
-                                        it.key as String to it.value as cocoapods.LaunchDarkly.LDValue
-                                    }.getOrNull()
-                                }.associate { it.first to JsonPrimitive(it.second.stringValue()) }
-                        ).toString()
-                    )
-                }.let { value ->
-                    JsonValueEvaluationDetail(jsonEvaluationDetail, value)
-                }
+                        json.decodeFromString(
+                            deserializer,
+                            JsonObject(
+                                remoteValue.dictValue()
+                                    .mapNotNull {
+                                        runCatching {
+                                            it.key as String to it.value as cocoapods.LaunchDarkly.LDValue
+                                        }.getOrNull()
+                                    }.associate { it.first to JsonPrimitive(it.second.stringValue()) }
+                            ).toString()
+                        )
+                    }.let { value ->
+                        JsonValueEvaluationDetail(jsonEvaluationDetail, value)
+                    }
             }
 
     actual fun <T> jsonListValueVariation(
@@ -169,7 +169,7 @@ actual class LDClient actual constructor(
                                                 .mapNotNull {
                                                     runCatching {
                                                         it.key as String to
-                                                                it.value as cocoapods.LaunchDarkly.LDValue
+                                                            it.value as cocoapods.LaunchDarkly.LDValue
                                                     }
                                                         .getOrNull()
                                                 }
@@ -183,10 +183,8 @@ actual class LDClient actual constructor(
                             // Construct a JsonValueEvaluationDetail object from the decoded value
                             JsonValueEvaluationDetail(jsonEvaluationDetail, value)
                         }
-
-                    } ?:
-                    // Return an empty list if the value is null
-                    JsonValueEvaluationDetail(jsonEvaluationDetail, emptyList())
+                    } // Return an empty list if the value is null
+                    ?: JsonValueEvaluationDetail(jsonEvaluationDetail, emptyList())
             }
 
     actual fun identify(context: LDContext) {
