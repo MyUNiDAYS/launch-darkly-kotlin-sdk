@@ -22,8 +22,11 @@ expect class LDClient(
     fun stringVariation(key: String, defaultValue: String): String
     fun stringVariationDetail(key: String, defaultValue: String): EvaluationDetailInterface<String>
     fun jsonValueVariation(key: String, defaultValue: LDValue): LDValue
+    fun jsonValueVariationDetail(key: String, defaultValue: LDValue): EvaluationDetailInterface<LDValue>
     fun <T> jsonValueVariation(key: String, deserializer: KSerializer<T>): T?
+    fun <T> jsonValueVariationDetail(key: String, deserializer: KSerializer<T>): EvaluationDetailInterface<T?>
     fun <T> jsonListValueVariation(key: String, deserializer: KSerializer<T>): List<T>
+    fun <T> jsonListValueVariationDetail(key: String, deserializer: KSerializer<T>): EvaluationDetailInterface<List<T>>
     fun close()
     fun identify(context: LDContext)
 }
