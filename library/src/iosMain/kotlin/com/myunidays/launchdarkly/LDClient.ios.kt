@@ -185,37 +185,37 @@ actual class LDClient actual constructor(
  * Converts a LaunchDarkly dictionary to a JsonObject
  */
 fun Map<String, cocoapods.LaunchDarkly.LDValue>.convertToJsonObject() = JsonObject(
-        this.map {
-            it.key to it.value.convertToJsonElement()
-        }.toMap()
-    )
+    this.map {
+        it.key to it.value.convertToJsonElement()
+    }.toMap()
+)
 
 /**
  * Converts a LaunchDarkly LDValue to a JsonElement
  */
 fun cocoapods.LaunchDarkly.LDValue.convertToJsonElement(): JsonElement = when (this.getType()) {
-        LDValueTypeNull -> JsonPrimitive(null)
-        LDValueTypeBool -> JsonPrimitive(this.boolValue())
-        LDValueTypeNumber -> JsonPrimitive(this.doubleValue())
-        LDValueTypeString -> JsonPrimitive(this.stringValue())
-        LDValueTypeArray -> {
-            JsonArray(
-                (
-                        this
-                            .arrayValue() as List<cocoapods.LaunchDarkly.LDValue>
-                        )
-                    .map { item ->
-                        JsonPrimitive(item.stringValue())
-                    }
-            )
-        }
-
-        LDValueTypeObject -> JsonObject(
-            (this.dictValue() as Map<String, cocoapods.LaunchDarkly.LDValue>)
-                .convertToJsonObject()
+    LDValueTypeNull -> JsonPrimitive(null)
+    LDValueTypeBool -> JsonPrimitive(this.boolValue())
+    LDValueTypeNumber -> JsonPrimitive(this.doubleValue())
+    LDValueTypeString -> JsonPrimitive(this.stringValue())
+    LDValueTypeArray -> {
+        JsonArray(
+            (
+                this
+                    .arrayValue() as List<cocoapods.LaunchDarkly.LDValue>
+                )
+                .map { item ->
+                    JsonPrimitive(item.stringValue())
+                }
         )
-
-        else -> {
-            JsonPrimitive(this.stringValue())
-        }
     }
+
+    LDValueTypeObject -> JsonObject(
+        (this.dictValue() as Map<String, cocoapods.LaunchDarkly.LDValue>)
+            .convertToJsonObject()
+    )
+
+    else -> {
+        JsonPrimitive(this.stringValue())
+    }
+}
