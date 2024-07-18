@@ -1,9 +1,16 @@
 package com.myunidays.launchdarkly
 
+import cocoapods.LaunchDarkly.LDValueTypeArray
+import cocoapods.LaunchDarkly.LDValueTypeBool
+import cocoapods.LaunchDarkly.LDValueTypeNull
+import cocoapods.LaunchDarkly.LDValueTypeNumber
+import cocoapods.LaunchDarkly.LDValueTypeObject
+import cocoapods.LaunchDarkly.LDValueTypeString
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -110,18 +117,13 @@ actual class LDClient actual constructor(
     ): EvaluationDetailInterface<T?> =
         ios!!.jsonVariationDetailForKey(key, cocoapods.LaunchDarkly.LDValue.ofNull())
             .let { jsonEvaluationDetail ->
-                jsonEvaluationDetail.value().takeUnless { it?.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
+                jsonEvaluationDetail.value().takeUnless { it.getType() == cocoapods.LaunchDarkly.LDValueTypeNull }
                     ?.let { remoteValue ->
                         json.decodeFromString(
                             deserializer,
-                            JsonObject(
-                                remoteValue.dictValue()
-                                    .mapNotNull {
-                                        runCatching {
-                                            it.key as String to it.value as cocoapods.LaunchDarkly.LDValue
-                                        }.getOrNull()
-                                    }.associate { it.first to JsonPrimitive(it.second.stringValue()) }
-                            ).toString()
+                            (remoteValue.dictValue() as Map<String, cocoapods.LaunchDarkly.LDValue>)
+                                .convertToJsonObject()
+                                .toString()
                         )
                     }.let { value ->
                         JsonValueEvaluationDetail(jsonEvaluationDetail, value)
@@ -162,21 +164,8 @@ actual class LDClient actual constructor(
                                     // Map each single remote value to a JsonObject
                                     .map { singleRemoteValue ->
 
-                                        JsonObject(
-                                            // Convert the dictionary of the single remote value
-                                            // to a map of string keys and JsonPrimitive values
-                                            singleRemoteValue.dictValue()
-                                                .mapNotNull {
-                                                    runCatching {
-                                                        it.key as String to
-                                                            it.value as cocoapods.LaunchDarkly.LDValue
-                                                    }
-                                                        .getOrNull()
-                                                }
-                                                .associate {
-                                                    it.first to JsonPrimitive(it.second.stringValue())
-                                                }
-                                        )
+                                        (singleRemoteValue as Map<String, cocoapods.LaunchDarkly.LDValue>)
+                                            .convertToJsonObject()
                                     }
                             ).toString()
                         ).let { value ->
@@ -189,5 +178,44 @@ actual class LDClient actual constructor(
 
     actual fun identify(context: LDContext) {
         ios?.identifyWithContext(context.ios)
+    }
+}
+
+/**
+ * Converts a LaunchDarkly dictionary to a JsonObject
+ */
+fun Map<String, cocoapods.LaunchDarkly.LDValue>.convertToJsonObject() = JsonObject(
+    this.map {
+        it.key to it.value.convertToJsonElement()
+    }.toMap()
+)
+
+/**
+ * Converts a LaunchDarkly LDValue to a JsonElement
+ */
+fun cocoapods.LaunchDarkly.LDValue.convertToJsonElement(): JsonElement = when (this.getType()) {
+    LDValueTypeNull -> JsonPrimitive(null)
+    LDValueTypeBool -> JsonPrimitive(this.boolValue())
+    LDValueTypeNumber -> JsonPrimitive(this.doubleValue())
+    LDValueTypeString -> JsonPrimitive(this.stringValue())
+    LDValueTypeArray -> {
+        JsonArray(
+            (
+                this
+                    .arrayValue() as List<cocoapods.LaunchDarkly.LDValue>
+                )
+                .map { item ->
+                    JsonPrimitive(item.stringValue())
+                }
+        )
+    }
+
+    LDValueTypeObject -> JsonObject(
+        (this.dictValue() as Map<String, cocoapods.LaunchDarkly.LDValue>)
+            .convertToJsonObject()
+    )
+
+    else -> {
+        JsonPrimitive(this.stringValue())
     }
 }
